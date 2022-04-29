@@ -16,6 +16,24 @@ const client = new MongoClient(uri, {
     serverApi: ServerApiVersion.v1,
 });
 
+async function run() {
+    try {
+        await client.connect();
+        const itemCollection = client.db('fruitsWarehouse').collection('item');
+
+        //POST
+        app.post('/item', async (req, res) => {
+            const newItem = req.body;
+            const result = await itemCollection.insertOne(newItem);
+            res.send({
+                success: true,
+                message: `Successfully inserted ${product.name}!`,
+            });
+        });
+    } finally {
+    }
+}
+run().catch(console.dir);
 
 app.get('/', (req, res) => {
     res.send('Fruits Warehouse Running');
