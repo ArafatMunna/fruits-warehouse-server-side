@@ -60,19 +60,22 @@ async function run() {
             const updatedItem = req.body;
 
             const filter = { _id: ObjectId(id) };
-            const option = { upsert: true };
+            const options = { upsert: true };
 
             const updatedDoc = {
                 $set: {
-                    quantity: updatedItem.quantity,
+                    quantity: updatedItem.newQuantity,
                 },
             };
-            const result = await userCollection.updateOne(
+            const result = await itemCollection.updateOne(
                 filter,
                 updatedDoc,
                 options
             );
-            res.send(result);
+            res.send({
+                success: true,
+                message: `Successfully Updated!`,
+            });
         });
     } finally {
     }
