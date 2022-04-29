@@ -22,13 +22,28 @@ async function run() {
         await client.connect();
         const itemCollection = client.db('fruitsWarehouse').collection('item');
 
+        //Get
+        app.get('/item', async (req, res) => {
+            const limit = parseInt(req.query.limit);
+            const query = {};
+
+            const cursor = itemCollection.find(query);
+            let items;
+            if (limit) {
+                items = await cursor.limit(limit).toArray();
+            } else {
+                items = await cursor.toArray();
+            }
+            res.send({ success: true, data: items });
+        });
+
         //POST
         app.post('/item', async (req, res) => {
             const newItem = req.body;
             const result = await itemCollection.insertOne(newItem);
             res.send({
                 success: true,
-                message: `Successfully inserted ${product.name}!`,
+                message: `Successfully inserted ${newItem.name}!`,
             });
         });
     } finally {
