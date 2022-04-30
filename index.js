@@ -99,6 +99,14 @@ async function run() {
             const result = await itemCollection.deleteOne(query);
             res.send(result);
         });
+
+        app.get('/myitems', async(req, res)=>{
+            const email = req.query.email;
+            const query = {email};
+            const cursor = itemCollection.find(query);
+            const items = await cursor.toArray();
+            res.send(items);
+        })
     } finally {
     }
 }
