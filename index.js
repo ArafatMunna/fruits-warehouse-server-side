@@ -7,6 +7,22 @@ const app = express();
 
 const port = process.env.PORT || 5000;
 
+function verifyJWT(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).send({ message: 'unauthorized access' });
+    }
+    const token = authHeader.split(' ')[1];
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+            return res.status(403).send({ message: 'Forbidden Access' });
+        }
+        req.decoded = decoded;
+        next();
+    });
+}
+
 //middleware
 app.use(cors());
 app.use(express.json());
@@ -100,13 +116,19 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/myitems', async(req, res)=>{
+        //My Items Get
+        app.get('/myitems', verifyJWT, async (req, res) => {
+            const decodedEmail = req.decoded.email;
             const email = req.query.email;
-            const query = {email};
-            const cursor = itemCollection.find(query);
-            const items = await cursor.toArray();
-            res.send(items);
-        })
+            if (email === decodedEmail) {
+                const query = { email };
+                const cursor = itemCollection.find(query);
+                const items = await cursor.toArray();
+                res.send(items);
+            } else {
+                res.status(403).send({ message: 'Forbidden Access' });
+            }
+        });
     } finally {
     }
 }
